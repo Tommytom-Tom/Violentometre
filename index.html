@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Une échelle personnalisable avec des exemples vierges, sans sauvegarde ni envoi des réponses.">
+  <meta name="referrer" content="no-referrer">
+  <title>Mon violentomètre personnalisable</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Aller au formulaire</a>
+  <header class="page-header">
+    <p class="eyebrow">Un support pour réfléchir et échanger</p>
+    <h1>Mon violentomètre</h1>
+    <p>Complétez les cases avec vos propres exemples. Aucun exemple n’est prérempli.</p>
+  </header>
+  <main id="main">
+    <aside class="notice" aria-label="À savoir">
+      <strong>Un outil personnalisable, pas un diagnostic.</strong>
+      <p>Les exemples sont rédigés par vous : cette version n’est pas un violentomètre validé et ne remplace pas un accompagnement professionnel. La position d’un exemple ne garantit pas qu’une situation est sans danger.</p>
+      <p>Vos réponses restent dans cette page, sans sauvegarde automatique ni envoi. Un rechargement ou la fermeture de la page peut les faire disparaître. Un PDF enregistré les conservera sur votre appareil.</p>
+    </aside>
+    <noscript><p class="notice">Activez JavaScript pour ajouter des exemples et générer l’aperçu. Aucune réponse n’est envoyée à un serveur.</p></noscript>
+    <div id="application" hidden>
+      <div class="toolbar" aria-label="Actions du formulaire">
+        <button id="preview-button" type="button" aria-expanded="false" aria-controls="preview">Voir l’aperçu</button>
+        <button id="print-button" type="button">Imprimer / Enregistrer en PDF</button>
+        <button id="reset-button" type="button" class="secondary">Effacer mes réponses</button>
+      </div>
+      <form id="editor" autocomplete="off">
+        <div class="title-field">
+          <label for="document-title">Titre de votre document (facultatif)</label>
+          <input id="document-title" type="text" maxlength="120" placeholder="Mon violentomètre" autocomplete="off">
+        </div>
+        <div id="zones" class="zones"></div>
+      </form>
+      <section id="preview" class="preview" aria-labelledby="preview-title" hidden tabindex="-1">
+        <p class="eyebrow">Aperçu de votre document</p>
+        <h2 id="preview-title">Mon violentomètre</h2>
+        <div id="preview-zones" class="zones"></div>
+        <p class="print-note">Support personnalisé : exemples rédigés par l’utilisateur, sans validation professionnelle ni diagnostic.</p>
+      </section>
+      <p id="status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+    </div>
+    <aside class="help" aria-labelledby="help-title">
+      <h2 id="help-title">Besoin d’aide ?</h2>
+      <p>En France, en cas de danger immédiat : <strong>17 ou 112</strong>. Si vous ne pouvez pas parler, envoyez un SMS au <strong>114</strong>. Le <strong>3919</strong> propose écoute et orientation pour les violences faites aux femmes ; ce n’est pas un numéro d’urgence.</p>
+      <a href="https://www.service-public.fr/particuliers/vosdroits/F12544" target="_blank" rel="noopener noreferrer">Consulter les ressources officielles (nouvel onglet)</a>
+    </aside>
+  </main>
+  <footer>Aucun compte requis · Aucun outil de suivi intégré · Aucune sauvegarde des réponses</footer>
+</body>
+</html>
