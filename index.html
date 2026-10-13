@@ -34,11 +34,14 @@
           <label for="document-title">Titre de votre document (facultatif)</label>
           <input id="document-title" type="text" maxlength="120" placeholder="Mon violentomètre" autocomplete="off">
         </div>
-        <div id="zones" class="zones"></div>
+        <div class="meter-sheet">
+          <h2 id="editor-title" class="meter-title">Mon violentomètre</h2>
+          <div id="zones" class="zones"></div>
+        </div>
       </form>
       <section id="preview" class="preview" aria-labelledby="preview-title" hidden tabindex="-1">
         <p class="eyebrow">Aperçu de votre document</p>
-        <h2 id="preview-title">Mon violentomètre</h2>
+        <h2 id="preview-title" class="meter-title">Mon violentomètre</h2>
         <div id="preview-zones" class="zones"></div>
         <p class="print-note">Support personnalisé : exemples rédigés par l’utilisateur, sans validation professionnelle ni diagnostic.</p>
       </section>
