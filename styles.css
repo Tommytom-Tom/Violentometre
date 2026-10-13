@@ -40,10 +40,19 @@ input::placeholder, textarea::placeholder { color: #52616c; opacity: 1; }
 .example { padding: 1rem; border-radius: .5rem; background: #ffffffd9; margin-bottom: .8rem; }
 .remove-button { margin-top: .5rem; padding: .35rem .7rem; font-size: .9rem; }
 .preview { background: white; padding: 1.5rem; border: 1px solid #ccd5dd; border-radius: .8rem; margin-top: 2rem; }
-.preview-example { white-space: pre-wrap; overflow-wrap: anywhere; border-bottom: 1px solid #b6c0c9; padding: .6rem 0; margin: 0; min-height: 3rem; }
+#preview-zones { display: block; }
+#preview-title { overflow-wrap: anywhere; text-align: center; background: #e1dbd0; color: #1a1919; margin: 0; padding: .6rem; font-size: 1.8rem; }
+.meter-zone { display: grid; grid-template-columns: 2.5rem 2rem minmax(0, 1fr); color: #1a1919; }
+.meter-zone + .meter-zone { border-top: 2px solid #1a1919; }
+.meter-advice, .meter-prompt { display: flex; align-items: center; justify-content: center; padding: .3rem; min-width: 0; }
+.meter-advice span, .meter-prompt span { writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; }
+.meter-advice { font-weight: 800; text-transform: uppercase; font-size: .8rem; }
+.meter-prompt { font-size: .7rem; }
+.meter-examples { min-width: 0; border-left: 1px solid #1a1919; }
+.preview-example { position: relative; white-space: pre-wrap; overflow-wrap: anywhere; border-bottom: 1px solid #1a191980; padding: .4rem 2.3rem .4rem .6rem; margin: 0; min-height: 2.1rem; line-height: 1.35; color: #1a1919; }
 .preview-example:last-child { border-bottom: 0; }
-.empty-example { color: #52616c; font-style: italic; }
-#preview-title { overflow-wrap: anywhere; }
+.preview-example::after { content: ""; position: absolute; top: 0; bottom: 0; right: .9rem; width: .8rem; border-left: 3px solid #1a1919; border-bottom: 2px solid #1a1919; }
+.meter-zone:last-child .preview-example:last-child::after { border-radius: 0 0 0 .6rem; }
 .print-note, footer { font-size: .9rem; }
 .print-note { margin-top: 1rem; }
 footer { text-align: center; padding-bottom: 2rem; }
@@ -58,17 +67,21 @@ a { color: #154d76; text-underline-offset: .2em; }
   .zone, .preview { padding: 1rem; }
   .example { padding: .75rem; }
 }
-@page { size: A4; margin: 15mm; }
+@page { size: A4; margin: 10mm; }
 @media print {
-  :root { background: white; font-size: 11pt; }
+  :root { background: white; font-size: 10pt; line-height: 1.35; }
   body { background: white; }
   .page-header, .notice, .toolbar, #editor, .help, footer, .skip-link, noscript, #status { display: none !important; }
   main { max-width: none; padding: 0; }
   #application, #preview[hidden] { display: block !important; }
   .preview { border: 0; padding: 0; margin: 0; }
   .preview > .eyebrow { display: none; }
-  .zone { print-color-adjust: exact; -webkit-print-color-adjust: exact; border-radius: 0; }
-  .zone h3 { break-after: avoid; }
-  .preview-example { break-inside: avoid; }
-  .print-note { font-size: 9pt; }
+  #preview { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  #preview-title { font-size: 22pt; padding: 2mm; break-after: avoid; }
+  .meter-zone { grid-template-columns: 10mm 8mm minmax(0, 1fr); }
+  .meter-advice { font-size: 9pt; }
+  .meter-prompt { font-size: 8pt; }
+  .preview-example { min-height: 8.7mm; padding: 1.2mm 10mm 1.2mm 3mm; break-inside: avoid; }
+  .preview-example::after { right: 4mm; width: 3mm; }
+  .print-note { font-size: 8pt; margin: 2mm 0 0; }
 }
