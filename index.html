@@ -14,7 +14,7 @@
   <header class="page-header">
     <p class="eyebrow">Un support pour réfléchir et échanger</p>
     <h1>Mon violentomètre</h1>
-    <p>Saisissez un exemple, choisissez sa couleur avec le curseur, puis ajoutez-le à votre violentomètre.</p>
+    <p>Complétez les cases avec vos propres exemples. Aucun exemple n’est prérempli.</p>
   </header>
   <main id="main">
     <aside class="notice" aria-label="À savoir">
@@ -25,7 +25,7 @@
     <noscript><p class="notice">Activez JavaScript pour ajouter des exemples et générer l’aperçu. Aucune réponse n’est envoyée à un serveur.</p></noscript>
     <div id="application" hidden>
       <div class="toolbar" aria-label="Actions du formulaire">
-        <button id="preview-button" type="button" aria-expanded="true" aria-controls="preview">Masquer l’aperçu</button>
+        <button id="preview-button" type="button" aria-expanded="false" aria-controls="preview">Voir l’aperçu</button>
         <button id="print-button" type="button">Imprimer / Enregistrer en PDF</button>
         <button id="reset-button" type="button" class="secondary">Effacer mes réponses</button>
       </div>
@@ -34,25 +34,13 @@
           <label for="document-title">Titre de votre document (facultatif)</label>
           <input id="document-title" type="text" maxlength="120" placeholder="Mon violentomètre" autocomplete="off">
         </div>
-        <section class="entry-card" aria-labelledby="entry-title">
-          <h2 id="entry-title">Ajouter un exemple</h2>
-          <label for="example-text">Votre exemple</label>
-          <textarea id="example-text" name="example" rows="3" maxlength="2000" required autocomplete="off" spellcheck="false" aria-describedby="entry-help"></textarea>
-          <p id="entry-help">Un seul exemple à la fois. Seuls les exemples ajoutés ou les modifications enregistrées figurent dans le document.</p>
-          <label for="example-position">Couleur et position de votre exemple</label>
-          <input id="example-position" type="range" min="0" max="100" step="1" value="0" aria-describedby="position-help">
-          <div class="slider-labels" aria-hidden="true"><span>Vert clair</span><span>Rouge foncé</span></div>
-          <div class="selection"><span id="selected-color" class="color-swatch" aria-hidden="true"></span><output id="position-output" for="example-position"></output></div>
-          <p id="position-help">Classement choisi par vous, pas un score ni un diagnostic : 0–29, PROFITE ; 30–69, C’EST ANORMAL, PARLES-EN ; 70–100, PROTÈGE-TOI, DEMANDE DE L’AIDE.</p>
-          <div class="entry-actions">
-            <button id="save-example" type="submit">Ajouter au violentomètre</button>
-            <button id="cancel-edit" type="button" class="secondary" hidden>Annuler la modification</button>
-          </div>
-        </section>
+        <div class="meter-sheet">
+          <h2 id="editor-title" class="meter-title">Mon violentomètre</h2>
+          <div id="zones" class="zones"></div>
+        </div>
       </form>
-      <section id="preview" class="preview" aria-labelledby="preview-title" tabindex="-1">
+      <section id="preview" class="preview" aria-labelledby="preview-title" hidden tabindex="-1">
         <p class="eyebrow">Aperçu de votre document</p>
-        <p class="preview-help">Les exemples sont triés par couleur. Utilisez le stylo pour modifier un exemple et la poubelle pour le supprimer.</p>
         <h2 id="preview-title" class="meter-title">Mon violentomètre</h2>
         <div id="preview-zones" class="zones"></div>
         <p class="print-note">Support personnalisé : exemples rédigés par l’utilisateur, sans validation professionnelle ni diagnostic.</p>
