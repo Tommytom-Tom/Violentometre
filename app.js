@@ -49,10 +49,21 @@
   const preview = document.querySelector("#preview");
   const previewButton = document.querySelector("#preview-button");
   const status = document.querySelector("#status");
-  // Une entrée par indice du catalogue : le texte et l'ordre restent immuables.
+  // Une entrée par indice du parcours mélangé, stable jusqu'au redémarrage.
   const answers = new Map();
+  let sessionPropositions = [];
   let editingId = null;
   let pendingCategory = "";
+
+  function shuffledPropositions() {
+    const shuffled = [...propositions];
+    // Fisher–Yates : chaque proposition est conservée exactement une fois.
+    for (let index = shuffled.length - 1; index > 0; index--) {
+      const target = Math.floor(Math.random() * (index + 1));
+      [shuffled[index], shuffled[target]] = [shuffled[target], shuffled[index]];
+    }
+    return shuffled;
+  }
 
   function element(tag, className, text) {
     const node = document.createElement(tag);
@@ -81,7 +92,7 @@
       : `${isEditing ? "Modifier la proposition" : "Proposition"} ${id + 1} / ${propositions.length}`;
     propositionText.textContent = complete
       ? "Toutes les propositions sont classées. Vous pouvez revoir leurs catégories dans l’aperçu ou enregistrer votre document en PDF."
-      : propositions[id];
+      : sessionPropositions[id];
     categoryOptions.disabled = complete;
     document.querySelector("#classification-fields").hidden = complete;
     saveButton.disabled = complete;
@@ -152,7 +163,7 @@
     for (const definition of definitions) {
       const section = createMeterZone(definition);
       const rows = section.querySelector(".meter-examples");
-      const items = propositions.map((text, id) => ({ text, id }))
+      const items = sessionPropositions.map((text, id) => ({ text, id }))
         .filter((item) => answers.get(item.id) === definition.id);
       items.forEach((example) => {
         const row = element("div", "meter-row");
@@ -215,6 +226,7 @@
   });
   window.addEventListener("beforeprint", updatePreview);
   function resetResponses() {
+    sessionPropositions = shuffledPropositions();
     answers.clear();
     editingId = null;
     pendingCategory = "";
