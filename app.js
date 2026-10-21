@@ -38,28 +38,21 @@
     { id: "vigilance", title: "2 · Vigilance", advice: "C’EST ANORMAL, PARLES-EN", prompt: "Il y a de la violence quand…" },
     { id: "danger", title: "3 · Danger", advice: "PROTÈGE-TOI, DEMANDE DE L’AIDE", prompt: "Tu es en danger quand…" },
   ];
-  const palette = [
-    { position: 0, rgb: [198, 233, 152] },
-    { position: 25, rgb: [134, 189, 74] },
-    { position: 40, rgb: [241, 185, 57] },
-    { position: 60, rgb: [231, 126, 54] },
-    { position: 80, rgb: [214, 38, 48] },
-    { position: 100, rgb: [120, 12, 24] },
-  ];
   const editor = document.querySelector("#editor");
   const title = document.querySelector("#document-title");
-  const input = document.querySelector("#example-text");
-  const slider = document.querySelector("#example-position");
+  const propositionText = document.querySelector("#example-text");
+  const entryTitle = document.querySelector("#entry-title");
+  const categoryOptions = document.querySelector("#category-options");
+  const radios = [...editor.querySelectorAll('input[name="category"]')];
   const saveButton = document.querySelector("#save-example");
   const cancelButton = document.querySelector("#cancel-edit");
   const preview = document.querySelector("#preview");
   const previewButton = document.querySelector("#preview-button");
   const status = document.querySelector("#status");
-  let examples = [];
+  // Une entrée par indice du catalogue : le texte et l'ordre restent immuables.
+  const answers = new Map();
   let editingId = null;
-  let nextId = 0;
-
-  propositions.forEach((text) => input.add(new Option(text, text)));
+  let pendingCategory = "";
 
   function element(tag, className, text) {
     const node = document.createElement(tag);
@@ -72,26 +65,33 @@
     status.textContent = message;
   }
 
-  function zoneFor(position) {
-    return definitions[position < 30 ? 0 : position < 70 ? 1 : 2];
+  function selectedCategory() {
+    return radios.find((radio) => radio.checked)?.value || "";
   }
 
-  function colorFor(position) {
-    const upper = palette.findIndex((stop) => stop.position >= position);
-    if (upper === 0) return palette[0].rgb;
-    const start = palette[upper - 1];
-    const end = palette[upper];
-    const fraction = (position - start.position) / (end.position - start.position);
-    return start.rgb.map((channel, index) => Math.round(channel + (end.rgb[index] - channel) * fraction));
+  function selectCategory(category) {
+    radios.forEach((radio) => { radio.checked = radio.value === category; });
   }
 
-  function updateSelection() {
-    document.querySelector("#selected-example").textContent = input.value;
-    const position = Number(slider.value);
-    const description = `Position ${position} / 100 · ${zoneFor(position).advice}`;
-    slider.setAttribute("aria-valuetext", description);
-    document.querySelector("#position-output").textContent = description;
-    document.querySelector("#selected-color").style.backgroundColor = `rgb(${colorFor(position).join(", ")})`;
+  function showCurrentProposition() {
+    const isEditing = editingId !== null;
+    const complete = !isEditing && answers.size === propositions.length;
+    const id = isEditing ? editingId : answers.size;
+    entryTitle.textContent = complete ? "Classement terminé"
+      : `${isEditing ? "Modifier la proposition" : "Proposition"} ${id + 1} / ${propositions.length}`;
+    propositionText.textContent = complete
+      ? "Toutes les propositions sont classées. Vous pouvez revoir leurs catégories dans l’aperçu ou enregistrer votre document en PDF."
+      : propositions[id];
+    categoryOptions.disabled = complete;
+    document.querySelector("#classification-fields").hidden = complete;
+    saveButton.disabled = complete;
+    saveButton.textContent = isEditing ? "Enregistrer la modification" : "Valider la catégorie";
+    cancelButton.hidden = !isEditing;
+    selectCategory(isEditing ? answers.get(id) : pendingCategory);
+    document.querySelector("#progress").textContent = `${answers.size} / ${propositions.length} propositions classées`;
+    const progress = document.querySelector("#classification-progress");
+    progress.max = propositions.length;
+    progress.value = answers.size;
   }
 
   function createMeterZone(definition) {
@@ -107,64 +107,26 @@
     return section;
   }
 
-  function colorRow(row, position) {
-    const rgb = colorFor(position);
-    row.style.backgroundColor = `rgb(${rgb.join(", ")})`;
-    const linear = rgb.map((value) => {
-      const channel = value / 255;
-      return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
-    });
-    const luminance = linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
-    row.style.color = luminance < 0.175 ? "#ffffff" : "#000000";
-  }
-
-  function clearDraft() {
-    editingId = null;
-    input.value = "";
-    input.setCustomValidity("");
-    slider.value = "0";
-    saveButton.textContent = "Ajouter au violentomètre";
-    document.querySelector("#entry-title").textContent = "Ajouter un exemple";
-    cancelButton.hidden = true;
-    updateSelection();
-  }
-
   function setPreviewVisible(visible) {
     preview.hidden = !visible;
     previewButton.setAttribute("aria-expanded", String(visible));
     previewButton.textContent = visible ? "Masquer l’aperçu" : "Voir l’aperçu";
   }
 
-  function editExample(example) {
-    if (input.value.trim() && editingId !== example.id
-      && !window.confirm("Remplacer l’exemple sélectionné ? Les modifications non enregistrées seront perdues.")) return;
-    editingId = example.id;
-    input.value = example.text;
-    input.setCustomValidity("");
-    slider.value = String(example.position);
-    saveButton.textContent = "Enregistrer la modification";
-    document.querySelector("#entry-title").textContent = "Modifier un exemple";
-    cancelButton.hidden = false;
-    updateSelection();
-    input.focus();
-    announce("Exemple chargé dans le formulaire. Choisissez une autre proposition ou une autre couleur, puis enregistrez.");
+  function editExample(id) {
+    if (editingId === id) return;
+    if (editingId !== null && selectedCategory() !== answers.get(editingId)
+      && !window.confirm("Abandonner la modification de catégorie en cours ?")) return;
+    if (editingId === null) pendingCategory = selectedCategory();
+    editingId = id;
+    showCurrentProposition();
+    entryTitle.focus();
+    announce("Modifiez la catégorie de cette proposition, puis enregistrez. Votre progression est conservée.");
   }
 
-  function deleteExample(example) {
-    if (!window.confirm("Supprimer cet exemple ? Cette action est irréversible.")) return;
-    const ordered = sortedExamples();
-    const index = ordered.findIndex((item) => item.id === example.id);
-    const fallback = ordered[index + 1] || ordered[index - 1];
-    examples = examples.filter((item) => item.id !== example.id);
-    if (editingId === example.id) clearDraft();
-    updatePreview();
-    const target = fallback && preview.querySelector(`[data-example-id="${fallback.id}"] .edit-button`);
-    (target || input).focus();
-    announce("Exemple supprimé.");
-  }
-
-  function iconButton(kind, label, onClick) {
-    const button = element("button", `icon-button ${kind}-button`);
+  function editButton(id) {
+    const label = `Modifier la catégorie de la proposition ${id + 1}`;
+    const button = element("button", "icon-button edit-button");
     button.type = "button";
     button.setAttribute("aria-label", label);
     button.title = label;
@@ -173,41 +135,32 @@
     svg.setAttribute("aria-hidden", "true");
     svg.setAttribute("focusable", "false");
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("d", kind === "edit"
-      ? "M4 20l4-1L20 7l-3-3L5 16l-1 4zM14 7l3 3"
-      : "M4 6h16M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7");
+    path.setAttribute("d", "M4 20l4-1L20 7l-3-3L5 16l-1 4zM14 7l3 3");
     svg.append(path);
     button.append(svg);
-    button.addEventListener("click", onClick);
+    button.addEventListener("click", () => editExample(id));
     return button;
   }
 
-  function sortedExamples() {
-    return [...examples].sort((a, b) => a.position - b.position || a.id - b.id);
-  }
-
   function updatePreview() {
-    const documentTitle = title.value.trim() || "Mon violentomètre";
-    document.querySelector("#preview-title").textContent = documentTitle;
+    document.querySelector("#preview-title").textContent = title.value.trim() || "Mon violentomètre";
+    document.querySelector("#document-progress").textContent = answers.size === propositions.length
+      ? `Classement complet : ${answers.size} / ${propositions.length} propositions.`
+      : `Classement incomplet : ${answers.size} / ${propositions.length} propositions. Les propositions non validées ne figurent pas dans ce document.`;
     const container = document.querySelector("#preview-zones");
     container.replaceChildren();
-    const ordered = sortedExamples();
     for (const definition of definitions) {
       const section = createMeterZone(definition);
       const rows = section.querySelector(".meter-examples");
-      const items = ordered.filter((item) => zoneFor(item.position).id === definition.id);
+      const items = propositions.map((text, id) => ({ text, id }))
+        .filter((item) => answers.get(item.id) === definition.id);
       items.forEach((example) => {
-        const number = ordered.findIndex((item) => item.id === example.id) + 1;
         const row = element("div", "meter-row");
         row.dataset.exampleId = String(example.id);
-        row.dataset.position = String(example.position);
+        row.dataset.category = definition.id;
         const text = element("p", "preview-example", example.text);
-        colorRow(text, example.position);
         const actions = element("div", "example-actions");
-        actions.append(
-          iconButton("edit", `Modifier l’exemple ${number}`, () => editExample(example)),
-          iconButton("delete", `Supprimer l’exemple ${number}`, () => deleteExample(example)),
-        );
+        actions.append(editButton(example.id));
         row.append(text, actions);
         rows.append(row);
       });
@@ -222,37 +175,34 @@
 
   editor.addEventListener("submit", (event) => {
     event.preventDefault();
-    const text = input.value.trim();
-    if (!propositions.includes(text)) {
-      input.setCustomValidity("Choisissez une proposition dans la liste.");
-      input.reportValidity();
+    const category = selectedCategory();
+    if (!definitions.some((definition) => definition.id === category)) {
+      categoryOptions.reportValidity();
       return;
     }
-    const position = Number(slider.value);
     const wasEditing = editingId !== null;
-    if (wasEditing) {
-      examples = examples.map((example) => example.id === editingId ? { ...example, text, position } : example);
-    } else {
-      examples.push({ id: ++nextId, text, position });
-    }
-    clearDraft();
+    const id = wasEditing ? editingId : answers.size;
+    if (id >= propositions.length) return;
+    answers.set(id, category);
+    editingId = null;
+    if (!wasEditing) pendingCategory = "";
+    showCurrentProposition();
     updatePreview();
     setPreviewVisible(true);
-    input.focus();
-    announce(wasEditing ? "Exemple modifié et reclassé." : "Exemple ajouté au violentomètre.");
+    const button = wasEditing && preview.querySelector(`[data-example-id="${id}"] .edit-button`);
+    (button || entryTitle).focus();
+    announce(wasEditing ? "Catégorie modifiée. Vous pouvez reprendre le classement."
+      : answers.size === propositions.length ? "Toutes les propositions sont classées."
+        : `Catégorie enregistrée. Proposition suivante : ${answers.size + 1} sur ${propositions.length}.`);
   });
-  input.addEventListener("change", () => {
-    input.setCustomValidity("");
-    updateSelection();
-  });
-  slider.addEventListener("input", updateSelection);
   title.addEventListener("input", updatePreview);
   cancelButton.addEventListener("click", () => {
     const id = editingId;
-    clearDraft();
+    editingId = null;
+    showCurrentProposition();
     const button = preview.querySelector(`[data-example-id="${id}"] .edit-button`);
-    (preview.hidden ? input : button || input).focus();
-    announce("Modification annulée. L’exemple original est conservé.");
+    (preview.hidden ? entryTitle : button || entryTitle).focus();
+    announce("Modification annulée. La catégorie d’origine est conservée.");
   });
   previewButton.addEventListener("click", () => {
     updatePreview();
@@ -265,19 +215,20 @@
   });
   window.addEventListener("beforeprint", updatePreview);
   function resetResponses() {
-    examples = [];
-    nextId = 0;
+    answers.clear();
+    editingId = null;
+    pendingCategory = "";
     title.value = "";
-    clearDraft();
+    showCurrentProposition();
     updatePreview();
     setPreviewVisible(true);
   }
 
   document.querySelector("#reset-button").addEventListener("click", () => {
-    if (!window.confirm("Effacer tous les exemples et la sélection en cours ? Cette action est irréversible.")) return;
+    if (!window.confirm("Recommencer le classement des propositions ? Toutes les catégories choisies et le titre seront effacés.")) return;
     resetResponses();
-    title.focus();
-    announce("Toutes les réponses ont été effacées.");
+    entryTitle.focus();
+    announce("Classement réinitialisé. Toutes les propositions sont à classer à nouveau.");
   });
 
   // Neutraliser aussi une éventuelle restauration de formulaire par le navigateur.

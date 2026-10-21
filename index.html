@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Une échelle personnalisable avec des propositions à sélectionner, sans sauvegarde ni envoi des réponses.">
+  <meta name="description" content="Classez toutes les propositions une à une dans trois catégories, sans sauvegarde ni envoi des réponses.">
   <meta name="referrer" content="no-referrer">
   <title>Mon violentomètre personnalisable</title>
   <link rel="stylesheet" href="styles.css">
@@ -14,7 +14,7 @@
   <header class="page-header">
     <p class="eyebrow">Un support pour réfléchir et échanger</p>
     <h1>Mon violentomètre</h1>
-    <p>Sélectionnez un exemple dans la liste, choisissez sa couleur avec le curseur, puis ajoutez-le à votre violentomètre.</p>
+    <p>Classez chaque proposition dans l’une des trois catégories. Validez votre choix pour passer à la suivante, jusqu’à les avoir toutes classées.</p>
   </header>
   <main id="main">
     <aside class="notice" aria-label="À savoir">
@@ -22,12 +22,12 @@
       <p>Les propositions reprennent le document fourni et sont à classer par vous : cette version n’est pas un violentomètre validé et ne remplace pas un accompagnement professionnel. La position d’un exemple ne garantit pas qu’une situation est sans danger.</p>
       <p>Vos réponses restent dans cette page, sans sauvegarde automatique ni envoi. Un rechargement ou la fermeture de la page peut les faire disparaître. Un PDF enregistré les conservera sur votre appareil.</p>
     </aside>
-    <noscript><p class="notice">Activez JavaScript pour ajouter des exemples et générer l’aperçu. Aucune réponse n’est envoyée à un serveur.</p></noscript>
+    <noscript><p class="notice">Activez JavaScript pour classer les propositions et générer l’aperçu. Aucune réponse n’est envoyée à un serveur.</p></noscript>
     <div id="application" hidden>
       <div class="toolbar" aria-label="Actions du formulaire">
         <button id="preview-button" type="button" aria-expanded="true" aria-controls="preview">Masquer l’aperçu</button>
         <button id="print-button" type="button">Imprimer / Enregistrer en PDF</button>
-        <button id="reset-button" type="button" class="secondary">Effacer mes réponses</button>
+        <button id="reset-button" type="button" class="secondary">Recommencer le classement</button>
       </div>
       <form id="editor" autocomplete="off">
         <div class="title-field">
@@ -35,30 +35,41 @@
           <input id="document-title" type="text" maxlength="120" placeholder="Mon violentomètre" autocomplete="off">
         </div>
         <section class="entry-card" aria-labelledby="entry-title">
-          <h2 id="entry-title">Ajouter un exemple</h2>
-          <label for="example-text">Votre exemple</label>
-          <select id="example-text" name="example" required aria-describedby="entry-help selected-example">
-            <option value="">Choisir une proposition</option>
-          </select>
-          <p id="selected-example" aria-live="polite"></p>
-          <p id="entry-help">Choisissez une proposition du document fourni, une à la fois. Seuls les exemples ajoutés ou les modifications enregistrées figurent dans le document.</p>
-          <label for="example-position">Couleur et position de votre exemple</label>
-          <input id="example-position" type="range" min="0" max="100" step="1" value="0" aria-describedby="position-help">
-          <div class="slider-labels" aria-hidden="true"><span>Vert clair</span><span>Rouge foncé</span></div>
-          <div class="selection"><span id="selected-color" class="color-swatch" aria-hidden="true"></span><output id="position-output" for="example-position"></output></div>
-          <p id="position-help">Classement choisi par vous, pas un score ni un diagnostic : 0–29, PROFITE ; 30–69, C’EST ANORMAL, PARLES-EN ; 70–100, PROTÈGE-TOI, DEMANDE DE L’AIDE.</p>
-          <div class="entry-actions">
-            <button id="save-example" type="submit">Ajouter au violentomètre</button>
-            <button id="cancel-edit" type="button" class="secondary" hidden>Annuler la modification</button>
+          <p id="progress">0 / 29 propositions classées</p>
+          <progress id="classification-progress" value="0" max="29" aria-label="Propositions classées"></progress>
+          <h2 id="entry-title" tabindex="-1" aria-describedby="example-text">Proposition 1 / 29</h2>
+          <p id="example-text" class="proposition-text"></p>
+          <div id="classification-fields">
+            <fieldset id="category-options" aria-describedby="example-text category-help">
+              <legend>Dans quelle catégorie classer cette proposition ?</legend>
+              <label class="category-choice category-choice--respect" for="category-respect">
+                <input id="category-respect" type="radio" name="category" value="respect" required>
+                <span>Respect — PROFITE</span>
+              </label>
+              <label class="category-choice category-choice--vigilance" for="category-vigilance">
+                <input id="category-vigilance" type="radio" name="category" value="vigilance" required>
+                <span>Vigilance — C’EST ANORMAL, PARLES-EN</span>
+              </label>
+              <label class="category-choice category-choice--danger" for="category-danger">
+                <input id="category-danger" type="radio" name="category" value="danger" required>
+                <span>Danger — PROTÈGE-TOI, DEMANDE DE L’AIDE</span>
+              </label>
+            </fieldset>
+            <p id="category-help">Un seul choix par proposition, sans catégorie présélectionnée. Ce classement dépend de vous : il ne constitue ni un score ni un diagnostic.</p>
+            <div class="entry-actions">
+              <button id="save-example" type="submit">Valider la catégorie</button>
+              <button id="cancel-edit" type="button" class="secondary" hidden>Annuler la modification</button>
+            </div>
           </div>
         </section>
       </form>
       <section id="preview" class="preview" aria-labelledby="preview-title" tabindex="-1">
         <p class="eyebrow">Aperçu de votre document</p>
-        <p class="preview-help">Les exemples sont triés par couleur. Utilisez le stylo pour modifier un exemple et la poubelle pour le supprimer.</p>
+        <p class="preview-help">Les propositions validées sont regroupées par catégorie. Le stylo permet de changer leur catégorie. Aucune proposition ne peut être supprimée.</p>
         <h2 id="preview-title" class="meter-title">Mon violentomètre</h2>
+        <p id="document-progress"></p>
         <div id="preview-zones" class="zones"></div>
-        <p class="print-note">Support personnalisé : propositions sélectionnées et classées par l’utilisateur, sans validation professionnelle ni diagnostic.</p>
+        <p class="print-note">Support personnalisé : propositions classées par l’utilisateur, sans validation professionnelle ni diagnostic.</p>
       </section>
       <p id="status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
     </div>
