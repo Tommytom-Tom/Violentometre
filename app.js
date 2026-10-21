@@ -1,6 +1,38 @@
 "use strict";
 
 (() => {
+  // Propositions transcrites de 1792415164582.jpg, colonne gauche puis droite.
+  const propositions = [
+    "Accepter les amis et la famille.",
+    "Avoir des avis différents mais les respecter, même si on n’est pas d’accord.",
+    "Les décisions importantes sont prises ensemble.",
+    "Ne pas prendre les choses personnellement quand notre partenaire nous fait une remarque.",
+    "On peut avoir chacun nos activités de notre côté mais quand on veut en faire une ensemble on s’assure d’être tous les deux d’accord de la faire.",
+    "Parfois, ignorer son partenaire.",
+    "Rabaisser les avis de son partenaire.",
+    "Dénigrer souvent de son partenaire en public ou en privé.",
+    "Surveiller les conversations, l’argent, les sorties et la façon dont s’habille son partenaire.",
+    "Ça peut arriver de frapper son partenaire avec un objet.",
+    "Casser un mur, une porte, une tv quand on n’en peut plus.",
+    "Contrôler les sorties, les amis.",
+    "Toucher ou coucher avec son partenaire, quoi qu’il en dise.",
+    "Envoyer un sms menaçant son partenaire de mort.",
+    "Frapper son partenaire une seule fois ?",
+    "Prendre en compte les avis et les désirs de chacun.",
+    "Se faire confiance mutuellement mais aussi envers soi-même.",
+    "Se sentir heureux et sentir son partenaire heureux et inversement.",
+    "Dans les disputes, les mots dépassent les pensées (cris, dépréciation de l’autre).",
+    "Douter de la sincérité de son partenaire, jusqu’à douter de sa fidélité.",
+    "Être en couple c’est ne faire plus qu’un : on pense les mêmes choses, on fait tout ensemble, on ne se sépare jamais, c’est pour la vie.",
+    "Intimidation ou un climat de terreur peut être une façon d’obtenir ce qu’on souhaite de notre partenaire (ex. « si tu sors sans moi je te quitte »).",
+    "Isoler son partenaire pour ne l’avoir plus que pour soi.",
+    "Menacer son partenaire de lui faire du mal ou aux gens qu’il aime.",
+    "Ne plus avoir de limite dans sa violence.",
+    "Péter un plomb pour un détail.",
+    "Garder l’argent et les papiers de son partenaire.",
+    "Refuser la rupture, jusqu’à penser à tuer son partenaire ou soi-même. Un couple ne se sépare pas. À la vie à la mort.",
+    "Insulter son partenaire.",
+  ];
   const definitions = [
     { id: "respect", title: "1 · Respect", advice: "PROFITE", prompt: "Ton environnement de travail\nest sain quand…" },
     { id: "vigilance", title: "2 · Vigilance", advice: "C’EST ANORMAL, PARLES-EN", prompt: "Il y a de la violence quand…" },
@@ -27,6 +59,8 @@
   let editingId = null;
   let nextId = 0;
 
+  propositions.forEach((text) => input.add(new Option(text, text)));
+
   function element(tag, className, text) {
     const node = document.createElement(tag);
     if (className) node.className = className;
@@ -52,6 +86,7 @@
   }
 
   function updateSelection() {
+    document.querySelector("#selected-example").textContent = input.value;
     const position = Number(slider.value);
     const description = `Position ${position} / 100 · ${zoneFor(position).advice}`;
     slider.setAttribute("aria-valuetext", description);
@@ -102,7 +137,7 @@
 
   function editExample(example) {
     if (input.value.trim() && editingId !== example.id
-      && !window.confirm("Remplacer l’exemple en cours de saisie ? Les modifications non enregistrées seront perdues.")) return;
+      && !window.confirm("Remplacer l’exemple sélectionné ? Les modifications non enregistrées seront perdues.")) return;
     editingId = example.id;
     input.value = example.text;
     input.setCustomValidity("");
@@ -112,7 +147,7 @@
     cancelButton.hidden = false;
     updateSelection();
     input.focus();
-    announce("Exemple chargé dans le formulaire. Modifiez le texte ou la couleur, puis enregistrez.");
+    announce("Exemple chargé dans le formulaire. Choisissez une autre proposition ou une autre couleur, puis enregistrez.");
   }
 
   function deleteExample(example) {
@@ -188,8 +223,8 @@
   editor.addEventListener("submit", (event) => {
     event.preventDefault();
     const text = input.value.trim();
-    if (!text) {
-      input.setCustomValidity("Saisissez un exemple, pas seulement des espaces.");
+    if (!propositions.includes(text)) {
+      input.setCustomValidity("Choisissez une proposition dans la liste.");
       input.reportValidity();
       return;
     }
@@ -206,7 +241,10 @@
     input.focus();
     announce(wasEditing ? "Exemple modifié et reclassé." : "Exemple ajouté au violentomètre.");
   });
-  input.addEventListener("input", () => input.setCustomValidity(""));
+  input.addEventListener("change", () => {
+    input.setCustomValidity("");
+    updateSelection();
+  });
   slider.addEventListener("input", updateSelection);
   title.addEventListener("input", updatePreview);
   cancelButton.addEventListener("click", () => {
@@ -236,7 +274,7 @@
   }
 
   document.querySelector("#reset-button").addEventListener("click", () => {
-    if (!window.confirm("Effacer tous les exemples et la saisie en cours ? Cette action est irréversible.")) return;
+    if (!window.confirm("Effacer tous les exemples et la sélection en cours ? Cette action est irréversible.")) return;
     resetResponses();
     title.focus();
     announce("Toutes les réponses ont été effacées.");

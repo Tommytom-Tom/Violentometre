@@ -20,16 +20,18 @@ p { margin: .6rem 0; }
 .help { margin-top: 2rem; }
 .help h2 { margin-top: 0; }
 .toolbar { display: flex; flex-wrap: wrap; gap: .75rem; margin: 1.5rem 0; }
-button, input, textarea { font: inherit; }
+button, input, select { font: inherit; }
 button { border: 2px solid #204f65; border-radius: .5rem; padding: .6rem .9rem; background: #204f65; color: white; cursor: pointer; min-height: 44px; }
 button:hover { background: #163849; border-color: #163849; }
 button.secondary, .icon-button { color: #204f65; background: white; }
 button.secondary:hover, .icon-button:hover { background: #eaf0f4; }
 :focus-visible { outline: 3px solid #075bd8; outline-offset: 3px; }
 label { display: block; font-weight: 600; margin-bottom: .35rem; }
-input, textarea { display: block; width: 100%; padding: .7rem; background: white; color: #182a36; border: 1px solid #677987; border-radius: .4rem; }
-textarea { min-height: 6rem; resize: vertical; }
-input::placeholder, textarea::placeholder { color: #52616c; opacity: 1; }
+input, select { display: block; width: 100%; min-width: 0; padding: .7rem; background: white; color: #182a36; border: 1px solid #677987; border-radius: .4rem; }
+select { min-height: 44px; text-overflow: ellipsis; }
+#selected-example { overflow-wrap: anywhere; }
+#selected-example:empty { display: none; }
+input::placeholder { color: #52616c; opacity: 1; }
 .title-field { max-width: 650px; margin-bottom: 1.5rem; }
 .entry-card { background: white; padding: 1.5rem; border: 1px solid #ccd5dd; border-radius: .8rem; }
 .entry-card h2 { margin-top: 0; }

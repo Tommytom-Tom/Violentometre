@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Une échelle personnalisable avec des exemples vierges, sans sauvegarde ni envoi des réponses.">
+  <meta name="description" content="Une échelle personnalisable avec des propositions à sélectionner, sans sauvegarde ni envoi des réponses.">
   <meta name="referrer" content="no-referrer">
   <title>Mon violentomètre personnalisable</title>
   <link rel="stylesheet" href="styles.css">
@@ -14,12 +14,12 @@
   <header class="page-header">
     <p class="eyebrow">Un support pour réfléchir et échanger</p>
     <h1>Mon violentomètre</h1>
-    <p>Saisissez un exemple, choisissez sa couleur avec le curseur, puis ajoutez-le à votre violentomètre.</p>
+    <p>Sélectionnez un exemple dans la liste, choisissez sa couleur avec le curseur, puis ajoutez-le à votre violentomètre.</p>
   </header>
   <main id="main">
     <aside class="notice" aria-label="À savoir">
       <strong>Un outil personnalisable, pas un diagnostic.</strong>
-      <p>Les exemples sont rédigés par vous : cette version n’est pas un violentomètre validé et ne remplace pas un accompagnement professionnel. La position d’un exemple ne garantit pas qu’une situation est sans danger.</p>
+      <p>Les propositions reprennent le document fourni et sont à classer par vous : cette version n’est pas un violentomètre validé et ne remplace pas un accompagnement professionnel. La position d’un exemple ne garantit pas qu’une situation est sans danger.</p>
       <p>Vos réponses restent dans cette page, sans sauvegarde automatique ni envoi. Un rechargement ou la fermeture de la page peut les faire disparaître. Un PDF enregistré les conservera sur votre appareil.</p>
     </aside>
     <noscript><p class="notice">Activez JavaScript pour ajouter des exemples et générer l’aperçu. Aucune réponse n’est envoyée à un serveur.</p></noscript>
@@ -37,8 +37,11 @@
         <section class="entry-card" aria-labelledby="entry-title">
           <h2 id="entry-title">Ajouter un exemple</h2>
           <label for="example-text">Votre exemple</label>
-          <textarea id="example-text" name="example" rows="3" maxlength="2000" required autocomplete="off" spellcheck="false" aria-describedby="entry-help"></textarea>
-          <p id="entry-help">Un seul exemple à la fois. Seuls les exemples ajoutés ou les modifications enregistrées figurent dans le document.</p>
+          <select id="example-text" name="example" required aria-describedby="entry-help selected-example">
+            <option value="">Choisir une proposition</option>
+          </select>
+          <p id="selected-example" aria-live="polite"></p>
+          <p id="entry-help">Choisissez une proposition du document fourni, une à la fois. Seuls les exemples ajoutés ou les modifications enregistrées figurent dans le document.</p>
           <label for="example-position">Couleur et position de votre exemple</label>
           <input id="example-position" type="range" min="0" max="100" step="1" value="0" aria-describedby="position-help">
           <div class="slider-labels" aria-hidden="true"><span>Vert clair</span><span>Rouge foncé</span></div>
@@ -55,7 +58,7 @@
         <p class="preview-help">Les exemples sont triés par couleur. Utilisez le stylo pour modifier un exemple et la poubelle pour le supprimer.</p>
         <h2 id="preview-title" class="meter-title">Mon violentomètre</h2>
         <div id="preview-zones" class="zones"></div>
-        <p class="print-note">Support personnalisé : exemples rédigés par l’utilisateur, sans validation professionnelle ni diagnostic.</p>
+        <p class="print-note">Support personnalisé : propositions sélectionnées et classées par l’utilisateur, sans validation professionnelle ni diagnostic.</p>
       </section>
       <p id="status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
     </div>
