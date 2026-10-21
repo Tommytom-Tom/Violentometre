@@ -55,6 +55,10 @@
   const preview = document.querySelector("#preview");
   const previewButton = document.querySelector("#preview-button");
   const correctionButton = document.querySelector("#correction-button");
+  const correctionDialog = document.querySelector("#correction-dialog");
+  const correctionAccessForm = document.querySelector("#correction-access-form");
+  const correctionCode = document.querySelector("#correction-code");
+  const correctionCodeError = document.querySelector("#correction-code-error");
   const status = document.querySelector("#status");
   // Une entrée par indice du parcours mélangé, stable jusqu'au redémarrage.
   const answers = new Map();
@@ -168,6 +172,17 @@
     document.querySelector("#correction-legend").hidden = !visible;
   }
 
+  function clearCorrectionCode() {
+    correctionCode.value = "";
+    correctionCode.removeAttribute("aria-invalid");
+    correctionCodeError.textContent = "";
+  }
+
+  function closeCorrectionDialog() {
+    clearCorrectionCode();
+    if (correctionDialog.open) correctionDialog.close();
+  }
+
   function markIncorrectAnswer(text, expectedCategory) {
     const definition = definitions.find((item) => item.id === expectedCategory);
     text.classList.add("preview-example--incorrect");
@@ -252,19 +267,46 @@
     if (!preview.hidden) preview.focus();
   });
   correctionButton.addEventListener("click", () => {
-    setCorrectionVisible(!correctionVisible);
+    if (!correctionVisible) {
+      clearCorrectionCode();
+      if (!correctionDialog.open) correctionDialog.showModal();
+      correctionCode.focus();
+      return;
+    }
+    setCorrectionVisible(false);
     updatePreview();
-    if (correctionVisible) setPreviewVisible(true);
-    announce(correctionVisible
-      ? "Correction affichée : les erreurs sont en gras, le carré indique la catégorie attendue."
-      : "Correction masquée. Vos réponses sont conservées.");
+    announce("Correction masquée. Vos réponses sont conservées.");
   });
+  correctionAccessForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!correctionDialog.open) return;
+    // Verrou d'interface local, pas une authentification sécurisée côté serveur.
+    if (correctionCode.value !== "Corrige") {
+      correctionCode.value = "";
+      correctionCode.setAttribute("aria-invalid", "true");
+      correctionCodeError.textContent = "Code incorrect. Réessayez ou annulez.";
+      correctionCode.focus();
+      return;
+    }
+    closeCorrectionDialog();
+    setCorrectionVisible(true);
+    updatePreview();
+    setPreviewVisible(true);
+    announce("Correction affichée : les erreurs sont en gras, le carré indique la catégorie attendue.");
+  });
+  correctionCode.addEventListener("input", () => {
+    correctionCode.removeAttribute("aria-invalid");
+    correctionCodeError.textContent = "";
+  });
+  document.querySelector("#cancel-correction-access").addEventListener("click", closeCorrectionDialog);
+  correctionDialog.addEventListener("close", clearCorrectionCode);
   document.querySelector("#print-button").addEventListener("click", () => {
     updatePreview();
     window.print();
   });
   window.addEventListener("beforeprint", updatePreview);
   function resetResponses() {
+    closeCorrectionDialog();
     sessionPropositions = shuffledPropositions();
     answers.clear();
     editingId = null;

@@ -26,10 +26,23 @@
     <div id="application" hidden>
       <div class="toolbar" aria-label="Actions du formulaire">
         <button id="preview-button" type="button" aria-expanded="true" aria-controls="preview">Masquer l’aperçu</button>
-        <button id="correction-button" type="button" aria-pressed="false" aria-controls="preview-zones correction-legend">Voir la correction</button>
+        <button id="correction-button" type="button" aria-pressed="false" aria-haspopup="dialog" aria-controls="correction-dialog preview-zones correction-legend">Voir la correction</button>
         <button id="print-button" type="button">Imprimer / Enregistrer en PDF</button>
         <button id="reset-button" type="button" class="secondary">Recommencer le classement</button>
       </div>
+      <dialog id="correction-dialog" aria-labelledby="correction-dialog-title" aria-describedby="correction-code-help">
+        <form id="correction-access-form" autocomplete="off" novalidate>
+          <h2 id="correction-dialog-title">Accéder à la correction</h2>
+          <p id="correction-code-help">Saisissez le code confidentiel pour afficher la correction.</p>
+          <label for="correction-code">Code confidentiel</label>
+          <input id="correction-code" type="password" required autocomplete="off" autocapitalize="none" spellcheck="false" aria-describedby="correction-code-help correction-code-error" autofocus>
+          <p id="correction-code-error" class="form-error" role="alert"></p>
+          <div class="entry-actions">
+            <button type="submit">Afficher la correction</button>
+            <button id="cancel-correction-access" type="button" class="secondary">Annuler</button>
+          </div>
+        </form>
+      </dialog>
       <form id="editor" autocomplete="off">
         <div class="title-field">
           <label for="document-title">Titre de votre document (facultatif)</label>
