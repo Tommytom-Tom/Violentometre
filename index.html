@@ -26,6 +26,7 @@
     <div id="application" hidden>
       <div class="toolbar" aria-label="Actions du formulaire">
         <button id="preview-button" type="button" aria-expanded="true" aria-controls="preview">Masquer l’aperçu</button>
+        <button id="correction-button" type="button" aria-pressed="false" aria-controls="preview-zones correction-legend">Voir la correction</button>
         <button id="print-button" type="button">Imprimer / Enregistrer en PDF</button>
         <button id="reset-button" type="button" class="secondary">Recommencer le classement</button>
       </div>
@@ -68,6 +69,7 @@
         <p class="preview-help">Les propositions validées sont regroupées par catégorie. Le stylo permet de changer leur catégorie. Aucune proposition ne peut être supprimée.</p>
         <h2 id="preview-title" class="meter-title">Mon violentomètre</h2>
         <p id="document-progress"></p>
+        <p id="correction-legend" hidden>Correction du document fourni : les propositions mal classées sont en <strong>gras</strong>. Le carré en fin de ligne indique la catégorie attendue : vert = Respect, orange = Vigilance, rouge foncé = Danger. Son libellé est disponible au survol et pour les lecteurs d’écran. Vos choix restent inchangés ; ce corrigé n’est pas un diagnostic.</p>
         <div id="preview-zones" class="zones"></div>
         <p class="print-note">Support personnalisé : propositions classées par l’utilisateur, sans validation professionnelle ni diagnostic.</p>
       </section>

@@ -33,6 +33,12 @@
     "Refuser la rupture, jusqu’à penser à tuer son partenaire ou soi-même. Un couple ne se sépare pas. À la vie à la mort.",
     "Insulter son partenaire.",
   ];
+  // Correction de 1792587430519.jpg. Indices du catalogue source, avant mélange.
+  const correctionByText = new Map([
+    ...[0, 1, 2, 3, 4, 15, 16, 17].map((id) => [propositions[id], "respect"]),
+    ...[5, 6, 7, 8, 18, 19, 20, 21].map((id) => [propositions[id], "vigilance"]),
+    ...[9, 10, 11, 12, 13, 14, 22, 23, 24, 25, 26, 27, 28].map((id) => [propositions[id], "danger"]),
+  ]);
   const definitions = [
     { id: "respect", title: "1 · Respect", advice: "PROFITE", prompt: "Ton environnement de travail\nest sain quand…" },
     { id: "vigilance", title: "2 · Vigilance", advice: "C’EST ANORMAL, PARLES-EN", prompt: "Il y a de la violence quand…" },
@@ -48,12 +54,14 @@
   const cancelButton = document.querySelector("#cancel-edit");
   const preview = document.querySelector("#preview");
   const previewButton = document.querySelector("#preview-button");
+  const correctionButton = document.querySelector("#correction-button");
   const status = document.querySelector("#status");
   // Une entrée par indice du parcours mélangé, stable jusqu'au redémarrage.
   const answers = new Map();
   let sessionPropositions = [];
   let editingId = null;
   let pendingCategory = "";
+  let correctionVisible = false;
 
   function shuffledPropositions() {
     const shuffled = [...propositions];
@@ -153,6 +161,25 @@
     return button;
   }
 
+  function setCorrectionVisible(visible) {
+    correctionVisible = visible;
+    correctionButton.setAttribute("aria-pressed", String(visible));
+    correctionButton.textContent = visible ? "Masquer la correction" : "Voir la correction";
+    document.querySelector("#correction-legend").hidden = !visible;
+  }
+
+  function markIncorrectAnswer(text, expectedCategory) {
+    const definition = definitions.find((item) => item.id === expectedCategory);
+    text.classList.add("preview-example--incorrect");
+    text.replaceChildren(element("strong", "", text.textContent));
+    const marker = element("span", `correction-marker correction-marker--${expectedCategory}`);
+    const description = `Catégorie attendue : ${definition.title.slice(4)} — ${definition.advice}`;
+    marker.setAttribute("role", "img");
+    marker.setAttribute("aria-label", description);
+    marker.title = description;
+    text.append(marker);
+  }
+
   function updatePreview() {
     document.querySelector("#preview-title").textContent = title.value.trim() || "Mon violentomètre";
     document.querySelector("#document-progress").textContent = answers.size === propositions.length
@@ -170,6 +197,10 @@
         row.dataset.exampleId = String(example.id);
         row.dataset.category = definition.id;
         const text = element("p", "preview-example", example.text);
+        const expectedCategory = correctionByText.get(example.text);
+        if (correctionVisible && expectedCategory !== definition.id) {
+          markIncorrectAnswer(text, expectedCategory);
+        }
         const actions = element("div", "example-actions");
         actions.append(editButton(example.id));
         row.append(text, actions);
@@ -220,6 +251,14 @@
     setPreviewVisible(preview.hidden);
     if (!preview.hidden) preview.focus();
   });
+  correctionButton.addEventListener("click", () => {
+    setCorrectionVisible(!correctionVisible);
+    updatePreview();
+    if (correctionVisible) setPreviewVisible(true);
+    announce(correctionVisible
+      ? "Correction affichée : les erreurs sont en gras, le carré indique la catégorie attendue."
+      : "Correction masquée. Vos réponses sont conservées.");
+  });
   document.querySelector("#print-button").addEventListener("click", () => {
     updatePreview();
     window.print();
@@ -230,6 +269,7 @@
     answers.clear();
     editingId = null;
     pendingCategory = "";
+    setCorrectionVisible(false);
     title.value = "";
     showCurrentProposition();
     updatePreview();
