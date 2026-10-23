@@ -40,9 +40,9 @@
     ...[9, 10, 11, 12, 13, 14, 22, 23, 24, 25, 26, 27, 28].map((id) => [propositions[id], "danger"]),
   ]);
   const definitions = [
-    { id: "respect", title: "1 · Relation égalitaire", advice: "PROFITE", prompt: "Ton environnement de travail\nest sain quand…" },
-    { id: "vigilance", title: "2 · Relation à risque", advice: "C’EST ANORMAL, PARLES-EN", prompt: "Il y a de la violence quand…" },
-    { id: "danger", title: "3 · Relation violente", advice: "PROTÈGE-TOI, DEMANDE DE L’AIDE", prompt: "Tu es en danger quand…" },
+    { id: "respect", title: "1 · Relation égalitaire", prompt: "Ton environnement de travail\nest sain quand…" },
+    { id: "vigilance", title: "2 · Relation à risque", prompt: "Il y a de la violence quand…" },
+    { id: "danger", title: "3 · Relation violente", prompt: "Tu es en danger quand…" },
   ];
   const editor = document.querySelector("#editor");
   const title = document.querySelector("#document-title");
@@ -128,7 +128,7 @@
     heading.id = `preview-${definition.id}`;
     section.setAttribute("aria-labelledby", heading.id);
     const advice = element("div", "meter-advice");
-    advice.append(element("span", "", definition.advice));
+    advice.append(element("span", "", definition.title.slice(4)));
     const prompt = element("div", "meter-prompt");
     prompt.append(element("span", "", definition.prompt));
     section.append(heading, advice, prompt, element("div", "meter-examples"));
@@ -170,11 +170,15 @@
 
   function setCorrectionVisible(visible) {
     correctionVisible = visible;
-    correctionButton.setAttribute("aria-pressed", String(visible));
+    updateCorrectionControls();
+  }
+
+  function updateCorrectionControls() {
+    correctionButton.setAttribute("aria-pressed", String(correctionVisible));
     correctionButton.setAttribute("aria-haspopup", correctionCodeRequired() ? "dialog" : "false");
     correctionButton.textContent = classificationFinalized ? "Réactiver la modification"
-      : visible ? "Masquer la correction" : "Voir la correction";
-    document.querySelector("#correction-legend").hidden = !visible;
+      : correctionVisible ? "Masquer la correction" : "Voir la correction";
+    document.querySelector("#correction-legend").hidden = !correctionVisible;
   }
 
   function clearCorrectionCode() {
@@ -201,6 +205,7 @@
   }
 
   function updatePreview() {
+    updateCorrectionControls();
     preview.classList.toggle("preview--locked", classificationFinalized);
     document.querySelector("#preview-title").textContent = title.value.trim() || "Mon violentomètre";
     document.querySelector("#document-progress").textContent = answers.size === propositions.length
