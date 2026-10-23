@@ -40,9 +40,9 @@
     ...[9, 10, 11, 12, 13, 14, 22, 23, 24, 25, 26, 27, 28].map((id) => [propositions[id], "danger"]),
   ]);
   const definitions = [
-    { id: "respect", title: "1 · Respect", advice: "PROFITE", prompt: "Ton environnement de travail\nest sain quand…" },
-    { id: "vigilance", title: "2 · Vigilance", advice: "C’EST ANORMAL, PARLES-EN", prompt: "Il y a de la violence quand…" },
-    { id: "danger", title: "3 · Danger", advice: "PROTÈGE-TOI, DEMANDE DE L’AIDE", prompt: "Tu es en danger quand…" },
+    { id: "respect", title: "1 · Relation égalitaire", advice: "PROFITE", prompt: "Ton environnement de travail\nest sain quand…" },
+    { id: "vigilance", title: "2 · Relation à risque", advice: "C’EST ANORMAL, PARLES-EN", prompt: "Il y a de la violence quand…" },
+    { id: "danger", title: "3 · Relation violente", advice: "PROTÈGE-TOI, DEMANDE DE L’AIDE", prompt: "Tu es en danger quand…" },
   ];
   const editor = document.querySelector("#editor");
   const title = document.querySelector("#document-title");
@@ -105,7 +105,7 @@
       : `${isEditing ? "Modifier la proposition" : "Proposition"} ${id + 1} / ${propositions.length}`;
     propositionText.textContent = complete
       ? classificationFinalized
-        ? "Votre document est verrouillé. Vous pouvez afficher ou masquer la correction sans code. Pour modifier vos réponses, recommencez le classement."
+        ? "Votre document est verrouillé. Cliquez sur « Réactiver la modification » et saisissez le code confidentiel pour modifier vos réponses sans masquer la correction. Vous pourrez ensuite la masquer en cliquant à nouveau sur ce bouton."
         : "Toutes les propositions sont classées. Vous pouvez encore revoir leurs catégories dans l’aperçu, puis cliquer sur « J'ai terminé. » pour verrouiller le document et afficher la correction."
       : sessionPropositions[id];
     finishButton.disabled = !complete || classificationFinalized;
@@ -164,11 +164,16 @@
     return button;
   }
 
+  function correctionCodeRequired() {
+    return classificationFinalized || !correctionVisible;
+  }
+
   function setCorrectionVisible(visible) {
     correctionVisible = visible;
     correctionButton.setAttribute("aria-pressed", String(visible));
-    correctionButton.setAttribute("aria-haspopup", !classificationFinalized && !visible ? "dialog" : "false");
-    correctionButton.textContent = visible ? "Masquer la correction" : "Voir la correction";
+    correctionButton.setAttribute("aria-haspopup", correctionCodeRequired() ? "dialog" : "false");
+    correctionButton.textContent = classificationFinalized ? "Réactiver la modification"
+      : visible ? "Masquer la correction" : "Voir la correction";
     document.querySelector("#correction-legend").hidden = !visible;
   }
 
@@ -188,7 +193,7 @@
     text.classList.add("preview-example--incorrect");
     text.replaceChildren(element("strong", "", text.textContent));
     const marker = element("span", `correction-marker correction-marker--${expectedCategory}`);
-    const description = `Catégorie attendue : ${definition.title.slice(4)} — ${definition.advice}`;
+    const description = `Catégorie attendue : ${definition.title.slice(4)}`;
     marker.setAttribute("role", "img");
     marker.setAttribute("aria-label", description);
     marker.title = description;
@@ -277,8 +282,12 @@
     announce("Classement finalisé : le document est verrouillé et la correction est affichée.");
   });
   correctionButton.addEventListener("click", () => {
-    if (!correctionVisible && !classificationFinalized) {
+    if (correctionCodeRequired()) {
       clearCorrectionCode();
+      const action = classificationFinalized ? "Réactiver la modification" : "Afficher la correction";
+      document.querySelector("#correction-dialog-title").textContent = classificationFinalized ? action : "Accéder à la correction";
+      document.querySelector("#correction-code-help").textContent = `Saisissez le code confidentiel pour ${action.toLowerCase()}.`;
+      correctionAccessForm.querySelector('button[type="submit"]').textContent = action;
       if (!correctionDialog.open) correctionDialog.showModal();
       correctionCode.focus();
       return;
@@ -301,6 +310,14 @@
       return;
     }
     closeCorrectionDialog();
+    if (classificationFinalized) {
+      classificationFinalized = false;
+      setCorrectionVisible(correctionVisible);
+      showCurrentProposition();
+      updatePreview();
+      announce("Modification réactivée. La correction reste affichée. Vous pouvez maintenant modifier votre document ou masquer la correction.");
+      return;
+    }
     setCorrectionVisible(true);
     updatePreview();
     announce("Correction affichée : les erreurs sont en gras, le carré indique la catégorie attendue.");

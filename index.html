@@ -56,15 +56,15 @@
               <legend>Dans quelle catégorie classer cette proposition ?</legend>
               <label class="category-choice category-choice--respect" for="category-respect">
                 <input id="category-respect" type="radio" name="category" value="respect" required>
-                <span>Respect — PROFITE</span>
+                <span>Relation égalitaire</span>
               </label>
               <label class="category-choice category-choice--vigilance" for="category-vigilance">
                 <input id="category-vigilance" type="radio" name="category" value="vigilance" required>
-                <span>Vigilance — C’EST ANORMAL, PARLES-EN</span>
+                <span>Relation à risque</span>
               </label>
               <label class="category-choice category-choice--danger" for="category-danger">
                 <input id="category-danger" type="radio" name="category" value="danger" required>
-                <span>Danger — PROTÈGE-TOI, DEMANDE DE L’AIDE</span>
+                <span>Relation violente</span>
               </label>
             </fieldset>
             <p id="category-help">Un seul choix par proposition, sans catégorie présélectionnée. Ce classement dépend de vous : il ne constitue ni un score ni un diagnostic.</p>
@@ -73,7 +73,7 @@
               <button id="cancel-edit" type="button" class="secondary" hidden>Annuler la modification</button>
             </div>
           </div>
-          <p id="finish-help">Classez toutes les propositions, puis terminez pour verrouiller votre document et afficher la correction sans code. Enregistrez ou annulez toute modification en cours avant de terminer.</p>
+          <p id="finish-help">Classez toutes les propositions, puis terminez pour verrouiller votre document et afficher la correction sans code. « Réactiver la modification » demande le code confidentiel et déverrouille le document sans masquer la correction. Un clic suivant sur « Masquer la correction » permet de la masquer. Enregistrez ou annulez toute modification en cours avant de terminer.</p>
           <div class="entry-actions">
             <button id="finish-button" type="button" aria-describedby="finish-help" disabled>J'ai terminé.</button>
           </div>
@@ -81,10 +81,10 @@
       </form>
       <section id="preview" class="preview" aria-labelledby="preview-title" tabindex="-1">
         <p class="eyebrow">Aperçu de votre document</p>
-        <p class="preview-help">Les propositions validées sont regroupées par catégorie. Le stylo permet de changer leur catégorie jusqu’au clic sur « J'ai terminé. ». Le titre et les catégories sont alors verrouillés. Aucune proposition ne peut être supprimée.</p>
+        <p class="preview-help">Les propositions validées sont regroupées par catégorie. Le stylo permet de changer leur catégorie jusqu’au clic sur « J'ai terminé. ». Le titre et les catégories sont alors verrouillés, jusqu’à réactivation de la modification avec le code confidentiel. Aucune proposition ne peut être supprimée.</p>
         <h2 id="preview-title" class="meter-title">Mon violentomètre</h2>
         <p id="document-progress"></p>
-        <p id="correction-legend" hidden>Correction du document fourni : les propositions mal classées sont en <strong>gras</strong>. Le carré en fin de ligne indique la catégorie attendue : vert = Respect, orange = Vigilance, rouge foncé = Danger. Son libellé est disponible au survol et pour les lecteurs d’écran. Vos choix restent inchangés ; ce corrigé n’est pas un diagnostic.</p>
+        <p id="correction-legend" hidden>Correction du document fourni : les propositions mal classées sont en <strong>gras</strong>. Le carré en fin de ligne indique la catégorie attendue : vert = Relation égalitaire, orange = Relation à risque, rouge foncé = Relation violente. Son libellé est disponible au survol et pour les lecteurs d’écran. Vos choix restent inchangés ; ce corrigé n’est pas un diagnostic.</p>
         <div id="preview-zones" class="zones"></div>
         <p class="print-note">Support personnalisé : propositions classées par l’utilisateur, sans validation professionnelle ni diagnostic.</p>
       </section>
