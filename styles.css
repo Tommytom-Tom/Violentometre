@@ -24,6 +24,7 @@ button { border: 2px solid #204f65; border-radius: .5rem; padding: .6rem .9rem; 
 button:hover { background: #163849; border-color: #163849; }
 button.secondary, .icon-button { color: #204f65; background: white; }
 button.secondary:hover, .icon-button:hover { background: #eaf0f4; }
+button:disabled { background: #e1e6eb; border-color: #677987; color: #52616c; cursor: not-allowed; }
 :focus-visible { outline: 3px solid #075bd8; outline-offset: 3px; }
 label { display: block; font-weight: 600; margin-bottom: .35rem; }
 input[type="text"], input[type="password"] { display: block; width: 100%; min-width: 0; padding: .7rem; background: white; color: #182a36; border: 1px solid #677987; border-radius: .4rem; }
@@ -62,6 +63,8 @@ input::placeholder { color: #52616c; opacity: 1; }
 .meter-prompt { font-size: .7rem; }
 .meter-examples { min-width: 0; display: flex; flex-direction: column; }
 .meter-row { display: grid; grid-template-columns: minmax(0, 1fr) var(--actions-width); flex: 1; min-width: 0; }
+.preview--locked .meter-title { margin-right: 0; }
+.preview--locked .meter-row { grid-template-columns: minmax(0, 1fr); }
 .preview-example, .meter-placeholder { position: relative; white-space: pre-wrap; overflow-wrap: anywhere; border-left: 1px solid #1a1919; border-bottom: 1px solid #1a191980; padding: .6rem; margin: 0; min-height: 3rem; line-height: 1.35; color: #1a1919; }
 .meter-zone + .meter-zone .meter-row:first-child > :first-child { border-top: 2px solid #1a1919; }
 .meter-row:last-child > :first-child { border-bottom: 0; }

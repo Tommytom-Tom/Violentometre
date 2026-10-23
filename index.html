@@ -25,9 +25,7 @@
     <noscript><p class="notice">Activez JavaScript pour classer les propositions et générer l’aperçu. Aucune réponse n’est envoyée à un serveur.</p></noscript>
     <div id="application" hidden>
       <div class="toolbar" aria-label="Actions du formulaire">
-        <button id="preview-button" type="button" aria-expanded="true" aria-controls="preview">Masquer l’aperçu</button>
         <button id="correction-button" type="button" aria-pressed="false" aria-haspopup="dialog" aria-controls="correction-dialog preview-zones correction-legend">Voir la correction</button>
-        <button id="print-button" type="button">Imprimer / Enregistrer en PDF</button>
         <button id="reset-button" type="button" class="secondary">Recommencer le classement</button>
       </div>
       <dialog id="correction-dialog" aria-labelledby="correction-dialog-title" aria-describedby="correction-code-help">
@@ -75,11 +73,15 @@
               <button id="cancel-edit" type="button" class="secondary" hidden>Annuler la modification</button>
             </div>
           </div>
+          <p id="finish-help">Classez toutes les propositions, puis terminez pour verrouiller votre document et afficher la correction sans code. Enregistrez ou annulez toute modification en cours avant de terminer.</p>
+          <div class="entry-actions">
+            <button id="finish-button" type="button" aria-describedby="finish-help" disabled>J'ai terminé.</button>
+          </div>
         </section>
       </form>
       <section id="preview" class="preview" aria-labelledby="preview-title" tabindex="-1">
         <p class="eyebrow">Aperçu de votre document</p>
-        <p class="preview-help">Les propositions validées sont regroupées par catégorie. Le stylo permet de changer leur catégorie. Aucune proposition ne peut être supprimée.</p>
+        <p class="preview-help">Les propositions validées sont regroupées par catégorie. Le stylo permet de changer leur catégorie jusqu’au clic sur « J'ai terminé. ». Le titre et les catégories sont alors verrouillés. Aucune proposition ne peut être supprimée.</p>
         <h2 id="preview-title" class="meter-title">Mon violentomètre</h2>
         <p id="document-progress"></p>
         <p id="correction-legend" hidden>Correction du document fourni : les propositions mal classées sont en <strong>gras</strong>. Le carré en fin de ligne indique la catégorie attendue : vert = Respect, orange = Vigilance, rouge foncé = Danger. Son libellé est disponible au survol et pour les lecteurs d’écran. Vos choix restent inchangés ; ce corrigé n’est pas un diagnostic.</p>

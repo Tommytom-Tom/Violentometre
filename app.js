@@ -52,8 +52,8 @@
   const radios = [...editor.querySelectorAll('input[name="category"]')];
   const saveButton = document.querySelector("#save-example");
   const cancelButton = document.querySelector("#cancel-edit");
+  const finishButton = document.querySelector("#finish-button");
   const preview = document.querySelector("#preview");
-  const previewButton = document.querySelector("#preview-button");
   const correctionButton = document.querySelector("#correction-button");
   const correctionDialog = document.querySelector("#correction-dialog");
   const correctionAccessForm = document.querySelector("#correction-access-form");
@@ -66,6 +66,7 @@
   let editingId = null;
   let pendingCategory = "";
   let correctionVisible = false;
+  let classificationFinalized = false;
 
   function shuffledPropositions() {
     const shuffled = [...propositions];
@@ -103,8 +104,12 @@
     entryTitle.textContent = complete ? "Classement terminé"
       : `${isEditing ? "Modifier la proposition" : "Proposition"} ${id + 1} / ${propositions.length}`;
     propositionText.textContent = complete
-      ? "Toutes les propositions sont classées. Vous pouvez revoir leurs catégories dans l’aperçu ou enregistrer votre document en PDF."
+      ? classificationFinalized
+        ? "Votre document est verrouillé. Vous pouvez afficher ou masquer la correction sans code. Pour modifier vos réponses, recommencez le classement."
+        : "Toutes les propositions sont classées. Vous pouvez encore revoir leurs catégories dans l’aperçu, puis cliquer sur « J'ai terminé. » pour verrouiller le document et afficher la correction."
       : sessionPropositions[id];
+    finishButton.disabled = !complete || classificationFinalized;
+    title.readOnly = classificationFinalized;
     categoryOptions.disabled = complete;
     document.querySelector("#classification-fields").hidden = complete;
     saveButton.disabled = complete;
@@ -130,14 +135,8 @@
     return section;
   }
 
-  function setPreviewVisible(visible) {
-    preview.hidden = !visible;
-    previewButton.setAttribute("aria-expanded", String(visible));
-    previewButton.textContent = visible ? "Masquer l’aperçu" : "Voir l’aperçu";
-  }
-
   function editExample(id) {
-    if (editingId === id) return;
+    if (classificationFinalized || editingId === id) return;
     if (editingId !== null && selectedCategory() !== answers.get(editingId)
       && !window.confirm("Abandonner la modification de catégorie en cours ?")) return;
     if (editingId === null) pendingCategory = selectedCategory();
@@ -168,6 +167,7 @@
   function setCorrectionVisible(visible) {
     correctionVisible = visible;
     correctionButton.setAttribute("aria-pressed", String(visible));
+    correctionButton.setAttribute("aria-haspopup", !classificationFinalized && !visible ? "dialog" : "false");
     correctionButton.textContent = visible ? "Masquer la correction" : "Voir la correction";
     document.querySelector("#correction-legend").hidden = !visible;
   }
@@ -196,6 +196,7 @@
   }
 
   function updatePreview() {
+    preview.classList.toggle("preview--locked", classificationFinalized);
     document.querySelector("#preview-title").textContent = title.value.trim() || "Mon violentomètre";
     document.querySelector("#document-progress").textContent = answers.size === propositions.length
       ? `Classement complet : ${answers.size} / ${propositions.length} propositions.`
@@ -216,9 +217,12 @@
         if (correctionVisible && expectedCategory !== definition.id) {
           markIncorrectAnswer(text, expectedCategory);
         }
-        const actions = element("div", "example-actions");
-        actions.append(editButton(example.id));
-        row.append(text, actions);
+        row.append(text);
+        if (!classificationFinalized) {
+          const actions = element("div", "example-actions");
+          actions.append(editButton(example.id));
+          row.append(actions);
+        }
         rows.append(row);
       });
       if (!items.length) {
@@ -232,6 +236,7 @@
 
   editor.addEventListener("submit", (event) => {
     event.preventDefault();
+    if (classificationFinalized) return;
     const category = selectedCategory();
     if (!definitions.some((definition) => definition.id === category)) {
       categoryOptions.reportValidity();
@@ -245,7 +250,6 @@
     if (!wasEditing) pendingCategory = "";
     showCurrentProposition();
     updatePreview();
-    setPreviewVisible(true);
     const button = wasEditing && preview.querySelector(`[data-example-id="${id}"] .edit-button`);
     (button || entryTitle).focus();
     announce(wasEditing ? "Catégorie modifiée. Vous pouvez reprendre le classement."
@@ -254,28 +258,36 @@
   });
   title.addEventListener("input", updatePreview);
   cancelButton.addEventListener("click", () => {
+    if (classificationFinalized || editingId === null) return;
     const id = editingId;
     editingId = null;
     showCurrentProposition();
     const button = preview.querySelector(`[data-example-id="${id}"] .edit-button`);
-    (preview.hidden ? entryTitle : button || entryTitle).focus();
+    (button || entryTitle).focus();
     announce("Modification annulée. La catégorie d’origine est conservée.");
   });
-  previewButton.addEventListener("click", () => {
+  finishButton.addEventListener("click", () => {
+    if (classificationFinalized || editingId !== null || answers.size !== propositions.length) return;
+    classificationFinalized = true;
+    closeCorrectionDialog();
+    setCorrectionVisible(true);
+    showCurrentProposition();
     updatePreview();
-    setPreviewVisible(preview.hidden);
-    if (!preview.hidden) preview.focus();
+    entryTitle.focus();
+    announce("Classement finalisé : le document est verrouillé et la correction est affichée.");
   });
   correctionButton.addEventListener("click", () => {
-    if (!correctionVisible) {
+    if (!correctionVisible && !classificationFinalized) {
       clearCorrectionCode();
       if (!correctionDialog.open) correctionDialog.showModal();
       correctionCode.focus();
       return;
     }
-    setCorrectionVisible(false);
+    setCorrectionVisible(!correctionVisible);
     updatePreview();
-    announce("Correction masquée. Vos réponses sont conservées.");
+    announce(correctionVisible
+      ? "Correction affichée : les erreurs sont en gras, le carré indique la catégorie attendue."
+      : "Correction masquée. Vos réponses sont conservées.");
   });
   correctionAccessForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -291,7 +303,6 @@
     closeCorrectionDialog();
     setCorrectionVisible(true);
     updatePreview();
-    setPreviewVisible(true);
     announce("Correction affichée : les erreurs sont en gras, le carré indique la catégorie attendue.");
   });
   correctionCode.addEventListener("input", () => {
@@ -300,10 +311,6 @@
   });
   document.querySelector("#cancel-correction-access").addEventListener("click", closeCorrectionDialog);
   correctionDialog.addEventListener("close", clearCorrectionCode);
-  document.querySelector("#print-button").addEventListener("click", () => {
-    updatePreview();
-    window.print();
-  });
   window.addEventListener("beforeprint", updatePreview);
   function resetResponses() {
     closeCorrectionDialog();
@@ -311,11 +318,11 @@
     answers.clear();
     editingId = null;
     pendingCategory = "";
+    classificationFinalized = false;
     setCorrectionVisible(false);
     title.value = "";
     showCurrentProposition();
     updatePreview();
-    setPreviewVisible(true);
   }
 
   document.querySelector("#reset-button").addEventListener("click", () => {
