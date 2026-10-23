@@ -5,26 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Classez toutes les propositions une à une dans trois catégories, sans sauvegarde ni envoi des réponses.">
   <meta name="referrer" content="no-referrer">
-  <title>Mon violentomètre personnalisable</title>
-  <link rel="stylesheet" href="styles.css?v=20261023-3">
-  <script src="app.js?v=20261023-3" defer></script>
+  <title>Mon violentomètre</title>
+  <link rel="stylesheet" href="styles.css?v=20261023-4">
+  <script src="app.js?v=20261023-4" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Aller au formulaire</a>
   <header class="page-header">
     <p class="eyebrow">Un support pour réfléchir et échanger</p>
     <h1>Mon violentomètre</h1>
-    <p>Classez chaque proposition dans l’une des trois catégories. Validez votre choix pour passer à la suivante, jusqu’à les avoir toutes classées.</p>
+    <p>Classez 29 propositions sur les relations de couple dans les catégories « Relation égalitaire », « Relation à risque » ou « Relation violente ». Elles sont présentées une à une, dans un ordre aléatoire. Choisissez une catégorie, puis validez pour passer à la suivante.</p>
   </header>
   <main id="main">
     <aside class="notice" aria-label="À savoir">
-      <strong>Un outil personnalisable, pas un diagnostic.</strong>
-      <p>Les propositions reprennent le document fourni et sont à classer par vous : cette version n’est pas un violentomètre validé et ne remplace pas un accompagnement professionnel. La position d’un exemple ne garantit pas qu’une situation est sans danger.</p>
-      <p>Vos réponses restent dans cette page, sans sauvegarde automatique ni envoi. Un rechargement ou la fermeture de la page peut les faire disparaître. Un PDF enregistré les conservera sur votre appareil.</p>
+      <strong>Un exercice de classement, pas un diagnostic.</strong>
+      <p>Les propositions et le corrigé proviennent des documents fournis. Vos choix servent de support à la réflexion et à l’échange : ils ne constituent ni un score ni un diagnostic. Cet exercice ne remplace pas un accompagnement professionnel. Classer une proposition dans une catégorie ne garantit pas qu’une situation est sans danger.</p>
+      <p>Vos réponses ne sont ni sauvegardées ni transmises. Recharger la page, la quitter ou recommencer le classement fait perdre vos choix.</p>
     </aside>
     <noscript><p class="notice">Activez JavaScript pour classer les propositions et générer l’aperçu. Aucune réponse n’est envoyée à un serveur.</p></noscript>
     <div id="application" hidden>
-      <div class="toolbar" aria-label="Actions du formulaire">
+      <div class="toolbar" aria-label="Actions du classement">
         <button id="correction-button" type="button" aria-pressed="false" aria-haspopup="dialog" aria-controls="correction-dialog preview-zones correction-legend">Voir la correction</button>
         <button id="reset-button" type="button" class="secondary">Recommencer le classement</button>
       </div>
@@ -42,10 +42,6 @@
         </form>
       </dialog>
       <form id="editor" autocomplete="off">
-        <div class="title-field">
-          <label for="document-title">Titre de votre document (facultatif)</label>
-          <input id="document-title" type="text" maxlength="120" placeholder="Mon violentomètre" autocomplete="off">
-        </div>
         <section class="entry-card" aria-labelledby="entry-title">
           <p id="progress">0 / 29 propositions classées</p>
           <progress id="classification-progress" value="0" max="29" aria-label="Propositions classées"></progress>
@@ -67,26 +63,26 @@
                 <span>Relation violente</span>
               </label>
             </fieldset>
-            <p id="category-help">Un seul choix par proposition, sans catégorie présélectionnée. Ce classement dépend de vous : il ne constitue ni un score ni un diagnostic.</p>
+            <p id="category-help">Choisissez une seule catégorie, puis cliquez sur « Valider la catégorie ». Aucun choix n’est présélectionné. Vous pourrez revoir les réponses validées avec les stylos de l’aperçu tant que les modifications sont autorisées.</p>
             <div class="entry-actions">
               <button id="save-example" type="submit">Valider la catégorie</button>
               <button id="cancel-edit" type="button" class="secondary" hidden>Annuler la modification</button>
             </div>
           </div>
-          <p id="finish-help">Classez toutes les propositions, puis terminez pour verrouiller votre document et afficher la correction sans code. « Réactiver la modification » demande le code confidentiel et déverrouille le document sans masquer la correction. Un clic suivant sur « Masquer la correction » permet de la masquer. Enregistrez ou annulez toute modification en cours avant de terminer.</p>
+          <p id="finish-help">« J'ai terminé. » devient disponible lorsque les 29 propositions sont classées et qu’aucune modification n’est en cours. Ce bouton verrouille vos réponses et affiche la correction sans code. Pour modifier à nouveau vos réponses, utilisez « Réactiver la modification » avec le code confidentiel : la correction restera visible. Vous pourrez ensuite la masquer sans code.</p>
           <div class="entry-actions">
             <button id="finish-button" type="button" aria-describedby="finish-help" disabled>J'ai terminé.</button>
           </div>
         </section>
       </form>
       <section id="preview" class="preview" aria-labelledby="preview-title" tabindex="-1">
-        <p class="eyebrow">Aperçu de votre document</p>
-        <p class="preview-help">Les propositions validées sont regroupées par catégorie. Le stylo permet de changer leur catégorie jusqu’au clic sur « J'ai terminé. ». Le titre et les catégories sont alors verrouillés, jusqu’à réactivation de la modification avec le code confidentiel. Aucune proposition ne peut être supprimée.</p>
+        <p class="eyebrow">Aperçu de votre classement</p>
+        <p class="preview-help">Cet aperçu reste visible et regroupe vos réponses validées par catégorie. Les stylos permettent de les modifier ; ils disparaissent après « J'ai terminé. » et réapparaissent après réactivation avec le code confidentiel. Les propositions ne peuvent être ni modifiées ni supprimées. Avant de terminer, « Voir la correction » demande le code confidentiel ; « Masquer la correction » ne demande aucun code lorsque les modifications sont autorisées.</p>
         <h2 id="preview-title" class="meter-title">Mon violentomètre</h2>
         <p id="document-progress"></p>
-        <p id="correction-legend" hidden>Correction du document fourni : les propositions mal classées sont en <strong>gras</strong>. Le carré en fin de ligne indique la catégorie attendue : vert = Relation égalitaire, orange = Relation à risque, rouge foncé = Relation violente. Son libellé est disponible au survol et pour les lecteurs d’écran. Vos choix restent inchangés ; ce corrigé n’est pas un diagnostic.</p>
+        <p id="correction-legend" hidden>Comparaison avec le corrigé fourni : les propositions dont la catégorie diffère du corrigé sont en <strong>gras</strong>. Le carré en fin de ligne indique la catégorie attendue : vert = Relation égalitaire, orange = Relation à risque, rouge foncé = Relation violente. Son libellé est disponible au survol et pour les lecteurs d’écran. Les réponses conformes au corrigé ne sont pas marquées. Vos choix ne sont pas corrigés automatiquement ; ce corrigé n’est pas un diagnostic.</p>
         <div id="preview-zones" class="zones"></div>
-        <p class="print-note">Support personnalisé : propositions classées par l’utilisateur, sans validation professionnelle ni diagnostic.</p>
+        <p class="print-note">Classement réalisé par l’utilisateur dans le cadre d’un exercice de réflexion, sans valeur de diagnostic.</p>
       </section>
       <p id="status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
     </div>

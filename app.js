@@ -40,12 +40,11 @@
     ...[9, 10, 11, 12, 13, 14, 22, 23, 24, 25, 26, 27, 28].map((id) => [propositions[id], "danger"]),
   ]);
   const definitions = [
-    { id: "respect", title: "1 · Relation égalitaire", prompt: "Ton environnement de travail\nest sain quand…" },
-    { id: "vigilance", title: "2 · Relation à risque", prompt: "Il y a de la violence quand…" },
-    { id: "danger", title: "3 · Relation violente", prompt: "Tu es en danger quand…" },
+    { id: "respect", title: "1 · Relation égalitaire", prompt: "Le respect mutuel\nest présent quand…" },
+    { id: "vigilance", title: "2 · Relation à risque", prompt: "Des signaux d’alerte\napparaissent quand…" },
+    { id: "danger", title: "3 · Relation violente", prompt: "Il y a de la violence\ndans le couple quand…" },
   ];
   const editor = document.querySelector("#editor");
-  const title = document.querySelector("#document-title");
   const propositionText = document.querySelector("#example-text");
   const entryTitle = document.querySelector("#entry-title");
   const categoryOptions = document.querySelector("#category-options");
@@ -101,15 +100,14 @@
     const isEditing = editingId !== null;
     const complete = !isEditing && answers.size === propositions.length;
     const id = isEditing ? editingId : answers.size;
-    entryTitle.textContent = complete ? "Classement terminé"
+    entryTitle.textContent = complete ? classificationFinalized ? "Classement finalisé" : "Toutes les propositions sont classées"
       : `${isEditing ? "Modifier la proposition" : "Proposition"} ${id + 1} / ${propositions.length}`;
     propositionText.textContent = complete
       ? classificationFinalized
-        ? "Votre document est verrouillé. Cliquez sur « Réactiver la modification » et saisissez le code confidentiel pour modifier vos réponses sans masquer la correction. Vous pourrez ensuite la masquer en cliquant à nouveau sur ce bouton."
-        : "Toutes les propositions sont classées. Vous pouvez encore revoir leurs catégories dans l’aperçu, puis cliquer sur « J'ai terminé. » pour verrouiller le document et afficher la correction."
+        ? "Votre classement est verrouillé et la correction est affichée. Pour changer vos réponses, cliquez sur « Réactiver la modification » et saisissez le code confidentiel. La correction restera visible ; un clic suivant sur « Masquer la correction » permettra de la masquer sans code."
+        : "Vous pouvez encore revoir vos réponses avec les stylos de l’aperçu. Cliquez sur « J'ai terminé. » pour verrouiller vos réponses et afficher la correction sans code. Cette validation ne sauvegarde pas votre classement."
       : sessionPropositions[id];
     finishButton.disabled = !complete || classificationFinalized;
-    title.readOnly = classificationFinalized;
     categoryOptions.disabled = complete;
     document.querySelector("#classification-fields").hidden = complete;
     saveButton.disabled = complete;
@@ -207,7 +205,6 @@
   function updatePreview() {
     updateCorrectionControls();
     preview.classList.toggle("preview--locked", classificationFinalized);
-    document.querySelector("#preview-title").textContent = title.value.trim() || "Mon violentomètre";
     document.querySelector("#document-progress").textContent = answers.size === propositions.length
       ? `Classement complet : ${answers.size} / ${propositions.length} propositions.`
       : `Classement incomplet : ${answers.size} / ${propositions.length} propositions. Les propositions non validées ne figurent pas dans ce document.`;
@@ -237,7 +234,7 @@
       });
       if (!items.length) {
         const placeholder = element("div", "meter-row");
-        placeholder.append(element("p", "meter-placeholder", "Aucun exemple classé dans cette rubrique."));
+        placeholder.append(element("p", "meter-placeholder", "Aucune proposition classée dans cette catégorie."));
         rows.append(placeholder);
       }
       container.append(section);
@@ -263,10 +260,9 @@
     const button = wasEditing && preview.querySelector(`[data-example-id="${id}"] .edit-button`);
     (button || entryTitle).focus();
     announce(wasEditing ? "Catégorie modifiée. Vous pouvez reprendre le classement."
-      : answers.size === propositions.length ? "Toutes les propositions sont classées."
+      : answers.size === propositions.length ? "Toutes les propositions sont classées. Relisez vos réponses, puis cliquez sur « J'ai terminé. » pour finaliser."
         : `Catégorie enregistrée. Proposition suivante : ${answers.size + 1} sur ${propositions.length}.`);
   });
-  title.addEventListener("input", updatePreview);
   cancelButton.addEventListener("click", () => {
     if (classificationFinalized || editingId === null) return;
     const id = editingId;
@@ -284,7 +280,7 @@
     showCurrentProposition();
     updatePreview();
     entryTitle.focus();
-    announce("Classement finalisé : le document est verrouillé et la correction est affichée.");
+    announce("Classement finalisé : vos réponses sont verrouillées et la correction est affichée. Le classement n’est pas sauvegardé.");
   });
   correctionButton.addEventListener("click", () => {
     if (correctionCodeRequired()) {
@@ -320,7 +316,7 @@
       setCorrectionVisible(correctionVisible);
       showCurrentProposition();
       updatePreview();
-      announce("Modification réactivée. La correction reste affichée. Vous pouvez maintenant modifier votre document ou masquer la correction.");
+      announce("Modification réactivée. La correction reste affichée. Vous pouvez maintenant modifier les catégories de vos réponses ou masquer la correction sans code.");
       return;
     }
     setCorrectionVisible(true);
@@ -342,13 +338,12 @@
     pendingCategory = "";
     classificationFinalized = false;
     setCorrectionVisible(false);
-    title.value = "";
     showCurrentProposition();
     updatePreview();
   }
 
   document.querySelector("#reset-button").addEventListener("click", () => {
-    if (!window.confirm("Recommencer le classement des propositions ? Toutes les catégories choisies et le titre seront effacés.")) return;
+    if (!window.confirm("Recommencer le classement ? Toutes vos réponses seront effacées, la correction sera masquée et les propositions seront mélangées à nouveau.")) return;
     resetResponses();
     entryTitle.focus();
     announce("Classement réinitialisé. Toutes les propositions sont à classer à nouveau.");
